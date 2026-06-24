@@ -319,6 +319,45 @@
   }
   .quiz-cta-btn:hover { transform: translateY(-2px); }
 
+  .quiz-box {
+    max-width: 600px; margin: 2rem auto 0; background: rgba(255,255,255,.07);
+    border: 1px solid rgba(255,255,255,.18); border-radius: 10px; padding: 1.8rem;
+  }
+  .quiz-progress-wrap { margin-bottom: 1.4rem; }
+  .quiz-progress-track {
+    width: 100%; height: 6px; background: rgba(255,255,255,.18);
+    border-radius: 3px; overflow: hidden; margin-bottom: .5rem;
+  }
+  .quiz-progress-fill {
+    height: 100%; background: #fff; border-radius: 3px;
+    width: 20%; transition: width .3s;
+  }
+  .quiz-progress-label { font-size: .75rem; color: rgba(255,255,255,.75); text-align: center; }
+  .quiz-q-title { font-size: .98rem; font-weight: 700; color: #fff; margin-bottom: 1rem; line-height: 1.6; }
+  .quiz-opt-list { display: flex; flex-direction: column; gap: .6rem; }
+  .quiz-opt {
+    display: block; width: 100%; text-align: left; background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.22); border-radius: 6px; padding: .8rem 1rem;
+    color: #fff; font-size: .85rem; font-family: inherit; cursor: pointer;
+    transition: background .15s, border-color .15s;
+  }
+  .quiz-opt:hover { background: rgba(255,255,255,.16); border-color: rgba(255,255,255,.4); }
+  .quiz-contact-group { margin-bottom: 1rem; text-align: left; }
+  .quiz-contact-group label {
+    display: block; font-size: .78rem; color: rgba(255,255,255,.8); margin-bottom: .4rem;
+  }
+  .quiz-contact-group input {
+    width: 100%; padding: .7rem .9rem; border-radius: 6px; border: 1px solid rgba(255,255,255,.3);
+    background: rgba(255,255,255,.95); color: #1a1a2e; font-size: .88rem; font-family: inherit;
+  }
+  .quiz-submit-btn {
+    display: block; width: 100%; background: #fff; color: #00008F;
+    padding: .9rem 1.5rem; border-radius: 6px; border: none;
+    font-size: .92rem; font-weight: 700; cursor: pointer; transition: transform .15s;
+  }
+  .quiz-submit-btn:hover { transform: translateY(-2px); }
+  .quiz-submit-btn:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+
   /* ── ARTICLES (Facebook share) ── */
   .fb-article-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.2rem; }
   .fb-article-card {
@@ -1263,7 +1302,7 @@
   <h2 class="section-title" style="color:#fff">你係邊類型嘅理財人格？</h2>
   <p class="section-sub" style="color:rgba(255,255,255,.75); margin-bottom:1.6rem;">一分鐘理財心理測驗，了解自己嘅理財傾向，搵到最適合自己嘅保障方案</p>
 
-  <div class="quiz-types-grid">
+    <div class="quiz-types-grid" id="quizIntroGrid">
     <div class="quiz-type-card">
       <div class="quiz-type-icon">🛡️</div>
       <div class="quiz-type-name">Guardian</div>
@@ -1286,8 +1325,92 @@
     </div>
   </div>
 
-  <div style="text-align:center; margin-top:2.2rem;">
-    <a href="https://forms.gle/EDSWx9aSPV7Pbv8s5" target="_blank" rel="noopener" class="quiz-cta-btn">立即做測驗，了解你的理財人格 →</a>
+  <div style="text-align:center; margin-top:2.2rem;" id="quizStartWrap">
+    <button type="button" class="quiz-cta-btn" onclick="startQuiz()">立即做測驗，了解你的理財人格 →</button>
+  </div>
+
+  <!-- 測驗主體（預設隱藏） -->
+  <div class="quiz-box" id="quizBox" style="display:none;">
+
+    <!-- 進度條 -->
+    <div class="quiz-progress-wrap">
+      <div class="quiz-progress-track"><div class="quiz-progress-fill" id="quizProgressFill"></div></div>
+      <div class="quiz-progress-label" id="quizProgressLabel">第 1 題 / 共 5 題</div>
+    </div>
+
+    <!-- 題目 -->
+    <div id="quizQuestions">
+      <div class="quiz-q" data-q="0">
+        <div class="quiz-q-title">1. 突然收到一筆 $50,000 的獎金，你的第一反應是？</div>
+        <div class="quiz-opt-list">
+          <button type="button" class="quiz-opt" data-val="A" onclick="answerQuiz(this)">A　立即存入銀行定期，安心最重要</button>
+          <button type="button" class="quiz-opt" data-val="B" onclick="answerQuiz(this)">B　研究一下股票或基金，讓錢增值</button>
+          <button type="button" class="quiz-opt" data-val="C" onclick="answerQuiz(this)">C　先享受一部份，剩下再理財</button>
+          <button type="button" class="quiz-opt" data-val="D" onclick="answerQuiz(this)">D　尋找投資機會，爭取最高回報</button>
+        </div>
+      </div>
+      <div class="quiz-q" data-q="1">
+        <div class="quiz-q-title">2. 你持有的投資突然下跌了 20%，你會怎樣做？</div>
+        <div class="quiz-opt-list">
+          <button type="button" class="quiz-opt" data-val="A" onclick="answerQuiz(this)">A　立即賣出，保住現有資產</button>
+          <button type="button" class="quiz-opt" data-val="B" onclick="answerQuiz(this)">B　冷靜分析原因，繼續持有等待回升</button>
+          <button type="button" class="quiz-opt" data-val="C" onclick="answerQuiz(this)">C　有點擔心，但也不知道怎樣辦就先放著</button>
+          <button type="button" class="quiz-opt" data-val="D" onclick="answerQuiz(this)">D　趁低加碼，這是買入好時機</button>
+        </div>
+      </div>
+      <div class="quiz-q" data-q="2">
+        <div class="quiz-q-title">3. 你最希望理財能幫你實現哪個目標？</div>
+        <div class="quiz-opt-list">
+          <button type="button" class="quiz-opt" data-val="A" onclick="answerQuiz(this)">A　保住現金，不虧損就好</button>
+          <button type="button" class="quiz-opt" data-val="B" onclick="answerQuiz(this)">B　穩步增值，退休後無憂</button>
+          <button type="button" class="quiz-opt" data-val="C" onclick="answerQuiz(this)">C　賺到足夠的錢，享受當下生活</button>
+          <button type="button" class="quiz-opt" data-val="D" onclick="answerQuiz(this)">D　盡快累積財富，實現財務自由</button>
+        </div>
+      </div>
+      <div class="quiz-q" data-q="3">
+        <div class="quiz-q-title">4. 朋友推薦一個「穩賺不賠」的投資項目，你的反應是？</div>
+        <div class="quiz-opt-list">
+          <button type="button" class="quiz-opt" data-val="A" onclick="answerQuiz(this)">A　直接拒絕，世上沒有穩賺的事</button>
+          <button type="button" class="quiz-opt" data-val="B" onclick="answerQuiz(this)">B　仔細研究其背景和風險後再決定</button>
+          <button type="button" class="quiz-opt" data-val="C" onclick="answerQuiz(this)">C　投入小部份試試看，怕錯過機會</button>
+          <button type="button" class="quiz-opt" data-val="D" onclick="answerQuiz(this)">D　感覺機會難得，考慮大力投入</button>
+        </div>
+      </div>
+      <div class="quiz-q" data-q="4">
+        <div class="quiz-q-title">5. 你對「現在的錢」和「未來的錢」的態度是？</div>
+        <div class="quiz-opt-list">
+          <button type="button" class="quiz-opt" data-val="A" onclick="answerQuiz(this)">A　寧願現在保住，不冒任何風險</button>
+          <button type="button" class="quiz-opt" data-val="B" onclick="answerQuiz(this)">B　願意等待，長期投資換取穩健回報</button>
+          <button type="button" class="quiz-opt" data-val="C" onclick="answerQuiz(this)">C　今朝有酒今朝醉，享受當下</button>
+          <button type="button" class="quiz-opt" data-val="D" onclick="answerQuiz(this)">D　願意承擔較高風險，換取更大未來回報</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 聯絡方式收集（答完5題後顯示） -->
+    <div class="quiz-q" id="quizContactStep" style="display:none;">
+      <div class="quiz-q-title">最後一步：留下聯絡方式，Albert 會將你嘅專屬理財人格報告send俾你</div>
+      <form id="quizContactForm" onsubmit="submitQuiz(event)">
+        <div class="quiz-contact-group">
+          <label>稱呼</label>
+          <input type="text" id="qc-name" placeholder="你的名字" required>
+        </div>
+        <div class="quiz-contact-group">
+          <label>WhatsApp / 微信號</label>
+          <input type="text" id="qc-contact" placeholder="例如：853 6698 3540 或 WeChat ID" required>
+        </div>
+        <button type="submit" class="quiz-submit-btn">提交，查看我嘅理財人格 →</button>
+        <div id="quizSubmitError" style="color:#ffd6d6; font-size:.75rem; margin-top:.6rem; display:none;">提交失敗，請檢查網絡後重試。</div>
+      </form>
+    </div>
+
+    <!-- 完成畫面 -->
+    <div class="quiz-q" id="quizDoneStep" style="display:none; text-align:center;">
+      <div style="font-size:2.5rem; margin-bottom:.8rem;">✅</div>
+      <div class="quiz-q-title" style="margin-bottom:.6rem;">已收到你嘅答案！</div>
+      <p style="color:rgba(255,255,255,.85); font-size:.88rem; line-height:1.8;">Albert 會喺一個工作天內，將你專屬嘅理財人格分析報告，透過你提供嘅聯絡方式send俾你。</p>
+    </div>
+
   </div>
 </section>
 
@@ -1655,6 +1778,85 @@
         btn.textContent = '確認預約 →';
         btn.disabled = false;
         alert('提交失敗，請檢查網絡連線後重試，或直接WhatsApp聯絡。');
+      });
+  }
+
+  // ── 理財人格測驗 ──
+  const quizAnswers = [];
+  let quizCurrentIndex = 0;
+  const QUIZ_TOTAL = 5;
+
+  function startQuiz() {
+    document.getElementById('quizIntroGrid').style.display = 'none';
+    document.getElementById('quizStartWrap').style.display = 'none';
+    document.getElementById('quizBox').style.display = 'block';
+    showQuizQuestion(0);
+    document.getElementById('quizBox').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function showQuizQuestion(index) {
+    document.querySelectorAll('.quiz-q[data-q]').forEach(q => {
+      q.style.display = (parseInt(q.dataset.q) === index) ? 'block' : 'none';
+    });
+    document.getElementById('quizProgressFill').style.width = (((index) / QUIZ_TOTAL) * 100) + '%';
+    document.getElementById('quizProgressLabel').textContent = `第 ${index + 1} 題 / 共 ${QUIZ_TOTAL} 題`;
+  }
+
+  function answerQuiz(btn) {
+    quizAnswers[quizCurrentIndex] = btn.dataset.val;
+    quizCurrentIndex++;
+    if (quizCurrentIndex < QUIZ_TOTAL) {
+      showQuizQuestion(quizCurrentIndex);
+    } else {
+      document.querySelectorAll('.quiz-q[data-q]').forEach(q => q.style.display = 'none');
+      document.getElementById('quizProgressFill').style.width = '100%';
+      document.getElementById('quizProgressLabel').textContent = `第 ${QUIZ_TOTAL} 題 / 共 ${QUIZ_TOTAL} 題`;
+      document.getElementById('quizContactStep').style.display = 'block';
+    }
+  }
+
+  function calcQuizType() {
+    const counts = { A: 0, B: 0, C: 0, D: 0 };
+    quizAnswers.forEach(a => counts[a]++);
+    const labelMap = { A: '🛡️ 守護型', B: '📊 規劃型', C: '🌈 享樂型', D: '🚀 進取型' };
+    let maxVal = Math.max(counts.A, counts.B, counts.C, counts.D);
+    const top = Object.keys(counts).filter(k => counts[k] === maxVal);
+    return top.map(k => labelMap[k]).join(' + ');
+  }
+
+  function submitQuiz(e) {
+    e.preventDefault();
+    const btn = document.querySelector('.quiz-submit-btn');
+    btn.textContent = '提交中…';
+    btn.disabled = true;
+
+    const resultType = calcQuizType();
+    const formData = new FormData();
+    formData.append('access_key', 'fa89f0167cad4b1399c056ddd02b49a0');
+    formData.append('subject', '新理財人格測驗結果');
+    formData.append('稱呼', document.getElementById('qc-name').value);
+    formData.append('聯絡方式', document.getElementById('qc-contact').value);
+    formData.append('第1題', quizAnswers[0]);
+    formData.append('第2題', quizAnswers[1]);
+    formData.append('第3題', quizAnswers[2]);
+    formData.append('第4題', quizAnswers[3]);
+    formData.append('第5題', quizAnswers[4]);
+    formData.append('測驗結果', resultType);
+
+    fetch('https://splitforms.com/api/submit', {
+      method: 'POST',
+      body: formData,
+      headers: { 'Accept': 'application/json' }
+    })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('quizContactStep').style.display = 'none';
+        document.getElementById('quizDoneStep').style.display = 'block';
+      })
+      .catch(() => {
+        btn.textContent = '提交，查看我嘅理財人格 →';
+        btn.disabled = false;
+        document.getElementById('quizSubmitError').style.display = 'block';
       });
   }
 
