@@ -350,26 +350,6 @@
   .social-link-btn:hover { border-color: #00008F; color: #00008F; }
   .social-icon { font-size: 1rem; }
 
-  /* ── GOOGLE FORM BOOKING CARD (Cloudflare version) ── */
-  .gform-card {
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 10px; padding: 2.2rem; text-align: left;
-  }
-  .gform-card-title {
-    font-size: 1.1rem; font-weight: 800; color: var(--text); margin-bottom: .8rem;
-  }
-  .gform-card-desc { font-size: .88rem; color: var(--muted); line-height: 1.8; margin-bottom: 1.3rem; }
-  .gform-card-list { list-style: none; display: flex; flex-direction: column; gap: .6rem; margin-bottom: 1.6rem; }
-  .gform-card-list li { font-size: .85rem; color: var(--text); }
-  .gform-cta-btn {
-    display: block; text-align: center; background: var(--accent); color: #fff;
-    padding: .95rem 1.5rem; border-radius: 6px; text-decoration: none;
-    font-size: .95rem; font-weight: 700; transition: background .2s, transform .15s;
-    margin-bottom: 1.2rem;
-  }
-  .gform-cta-btn:hover { background: #0000c8; transform: translateY(-2px); }
-  .gform-card-note { font-size: .78rem; color: var(--muted); text-align: center; }
-
   /* ── FOOTER ── */
   footer {
     border-top: 1px solid var(--border);
@@ -526,7 +506,7 @@
   .active-card .prot-tags span { background: #e8e8f8; border-color: #b8b8e8; color: var(--accent2); }
 
   /* ── CASHFLOW ── */
-  .cf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+  .cf-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
   .cf-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; }
   .cf-card-title {
     font-size: .85rem; font-weight: 700; letter-spacing: .05em;
@@ -535,6 +515,7 @@
   }
   .cf-card-title.income { color: #00008F; }
   .cf-card-title.expense { color: #e05c5c; }
+  .cf-card-title.savings { color: #1a9c6b; }
   .cf-row {
     display: flex; align-items: center; justify-content: space-between;
     gap: .8rem; margin-bottom: .7rem;
@@ -559,6 +540,7 @@
   }
   .income-total span:last-child { color: #00008F; }
   .expense-total span:last-child { color: #e05c5c; }
+  .savings-total span:last-child { color: #1a9c6b; }
 
   /* Result */
   .cf-result {
@@ -1016,17 +998,103 @@
     </div>
 
     <div>
-      <div class="gform-card">
-        <div class="gform-card-title">免費預約保單檢視</div>
-        <p class="gform-card-desc">撳下方按鈕，填寫簡單表格（姓名、聯絡方式、想了解嘅服務、偏好時間），Albert 會喺一個工作天內透過 WhatsApp 與你確認。</p>
-        <ul class="gform-card-list">
-          <li>📋 姓名 / 電話或微信</li>
-          <li>🛡️ 服務類別（一般／商業／人壽保險／保單檢視）</li>
-          <li>📅 偏好日期及時間</li>
-          <li>📍 會面方式（面對面或線上）</li>
-        </ul>
-        <a class="gform-cta-btn" href="https://forms.gle/2p8YLbLSk9BdAghg8" target="_blank" rel="noopener">立即填寫預約表 →</a>
-        <div class="gform-card-note">WhatsApp：853 6698 3540　|　WeChat：albertlam25</div>
+      <!-- Netlify Forms: 加 data-netlify="true" 即自動收集 -->
+      <form
+        class="booking-form"
+        id="bookingForm"
+        name="policy-review"
+        method="POST"
+        data-netlify="true"
+        netlify-honeypot="bot-field"
+        onsubmit="handleSubmit(event)"
+      >
+        <!-- Netlify 必要隱藏欄位 -->
+        <input type="hidden" name="form-name" value="policy-review">
+        <p style="display:none"><input name="bot-field"></p>
+
+        <div class="form-title">填寫預約資料</div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>姓名 *</label>
+            <input type="text" name="姓名" id="f-name" placeholder="你的名字" required>
+          </div>
+          <div class="form-group">
+            <label>電話 / 微信號 *</label>
+            <input type="text" name="電話或微信" id="f-phone" placeholder="電話號碼或微信號" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>服務主要類別 *</label>
+          <select id="f-service-main" required onchange="updateServiceSub()">
+            <option value="">請先選擇主要類別</option>
+            <option value="general">一般保險</option>
+            <option value="commercial">商業保險</option>
+            <option value="life">人壽保險</option>
+            <option value="review">保單檢視</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="serviceSubWrap" style="display:none">
+          <label>服務細項 *</label>
+          <select name="服務類別" id="f-service" required onchange="checkOtherOption()">
+            <option value="">請選擇細項</option>
+          </select>
+          <div id="other-note" style="font-size:.72rem;color:var(--accent);margin-top:.4rem;display:none">💡 已選擇「其他」，請喺下方備註欄填寫具體需求</div>
+        </div>
+        <input type="hidden" name="服務主要類別" id="f-service-main-hidden">
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>偏好日期 *</label>
+            <input type="date" name="偏好日期" id="f-date" required>
+          </div>
+          <div class="form-group">
+            <label>偏好時間 *</label>
+            <div class="slot-grid">
+              <button type="button" class="slot-btn" onclick="selectSlot(this)">10:00</button>
+              <button type="button" class="slot-btn" onclick="selectSlot(this)">11:00</button>
+              <button type="button" class="slot-btn" onclick="selectSlot(this)">12:00</button>
+              <button type="button" class="slot-btn" onclick="selectSlot(this)">14:00</button>
+              <button type="button" class="slot-btn" onclick="selectSlot(this)">15:00</button>
+              <button type="button" class="slot-btn" onclick="selectSlot(this)">16:00</button>
+              <button type="button" class="slot-btn" onclick="selectSlot(this)">17:00</button>
+              <button type="button" class="slot-btn" onclick="selectSlot(this)">19:00</button>
+              <button type="button" class="slot-btn" onclick="selectSlot(this)">20:00</button>
+            </div>
+            <!-- 隱藏欄位儲存所選時間，提交給 Netlify -->
+            <input type="hidden" name="偏好時間" id="f-time">
+            <div id="time-error" style="color:#e55;font-size:.75rem;margin-top:.4rem;display:none">請選擇時間</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>會面方式 *</label>
+          <select name="會面方式" id="f-method" required>
+            <option value="">請選擇會面方式</option>
+            <option value="面對面（澳門）">📍 面對面（澳門）</option>
+            <option value="線上" id="onlineOption" disabled>💻 線上（只限一般保險／商業保險）</option>
+          </select>
+          <div id="method-note" style="font-size:.72rem;color:var(--muted);margin-top:.4rem;display:none">💡 線上會面只適用於一般保險及商業保險類別</div>
+        </div>
+
+        <div class="form-group">
+          <label>備註（可選）</label>
+          <textarea name="備註" id="f-note" placeholder="例如：現有幾份保單想檢視、有特定保障需求等…"></textarea>
+        </div>
+
+        <button type="submit" class="form-submit">確認預約 →</button>
+        <div class="form-note">以上資料只作預約用途，絕不外洩。AMCM持牌保險顧問。</div>
+      </form>
+
+      <!-- 成功畫面（JS切換顯示） -->
+      <div class="success-msg" id="successMsg">
+        <div class="success-icon">✅</div>
+        <h3>預約成功！</h3>
+        <p id="success-detail">Albert 會於一個工作天內透過 WhatsApp 與你確認詳情。</p>
+        <br>
+        <p style="color:var(--accent);font-size:.85rem">WhatsApp：853 6698 3540　|　WeChat：albertlam25</p>
       </div>
     </div>
   </div>
@@ -1060,13 +1128,23 @@
         <label>兼職 / 其他</label>
         <div class="cf-input-wrap"><span>MOP$</span><input type="number" id="i-other" placeholder="0" oninput="calcCF()"></div>
       </div>
-      <div class="cf-row cf-savings-row">
-        <label>每月儲蓄 💰</label>
-        <div class="cf-input-wrap savings-input"><span>MOP$</span><input type="number" id="i-savings" placeholder="0" oninput="calcCF()"></div>
-      </div>
       <div class="cf-total income-total">
         <span>總收入</span>
         <span id="total-income">MOP$ 0</span>
+      </div>
+    </div>
+
+    <!-- 儲蓄 -->
+    <div class="cf-card">
+      <div class="cf-card-title savings">🐷 每月儲蓄</div>
+
+      <div class="cf-row">
+        <label>每月儲蓄</label>
+        <div class="cf-input-wrap savings-input"><span>MOP$</span><input type="number" id="i-savings" placeholder="0" oninput="calcCF()"></div>
+      </div>
+      <div class="cf-total savings-total">
+        <span>儲蓄比率</span>
+        <span id="cf-saverate-card">0%</span>
       </div>
     </div>
 
@@ -1341,6 +1419,7 @@
 
     // 儲蓄比率
     document.getElementById('cf-saverate').textContent = saveRate.toFixed(1) + '%';
+    document.getElementById('cf-saverate-card').textContent = saveRate.toFixed(1) + '%';
     document.getElementById('cf-save-sub').textContent = savings > 0
       ? `MOP$ ${savings.toLocaleString('zh-HK')} / 月`
       : '未填寫儲蓄金額';
@@ -1435,12 +1514,90 @@
     document.querySelectorAll('.lazypack-inner').forEach((p,i) => p.classList.toggle('active', i==index));
   }
 
+  // Min date = today
+  const dateInput = document.getElementById('f-date');
+  dateInput.setAttribute('min', new Date().toISOString().split('T')[0]);
+
   // Tab switching
   function switchTab(type) {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
     event.target.classList.add('active');
     document.getElementById('tab-' + type).classList.add('active');
+  }
+
+  // ── 服務類別二段式篩選 ──
+  const SERVICE_OPTIONS = {
+    general: [
+      '第三者責任保險（車保）',
+      '中國交強險 + 商業險（北上）',
+      '綜合家居保險',
+      '全年旅遊計劃',
+      '僱員補償保險（勞工保險）',
+      '僱員補償保險（勞工保險＋家傭醫療附加保障）',
+      '其他'
+    ],
+    commercial: [
+      '僱員補償保險（勞工保險）',
+      '公眾責任險（餐廳 / 商戶）',
+      '商業財產綜合保險',
+      '招牌及廣告牌保險',
+      '其他'
+    ],
+    life: [
+      '大額醫療保險',
+      '危疾保險',
+      '人壽保險',
+      '儲蓄保險計劃',
+      '派息基金計劃',
+      '其他'
+    ],
+    review: [
+      '免費保單檢視（已有保單）',
+      '唔清楚，想傾下先',
+      '其他'
+    ]
+  };
+  const SERVICE_MAIN_LABEL = {
+    general: '一般保險', commercial: '商業保險', life: '人壽保險', review: '保單檢視'
+  };
+
+  function updateServiceSub() {
+    const mainVal = document.getElementById('f-service-main').value;
+    const subWrap = document.getElementById('serviceSubWrap');
+    const subSelect = document.getElementById('f-service');
+    document.getElementById('f-service-main-hidden').value = SERVICE_MAIN_LABEL[mainVal] || '';
+
+    if (!mainVal) {
+      subWrap.style.display = 'none';
+      subSelect.innerHTML = '<option value="">請選擇細項</option>';
+    } else {
+      subWrap.style.display = 'block';
+      subSelect.innerHTML = '<option value="">請選擇細項</option>' +
+        SERVICE_OPTIONS[mainVal].map(s => `<option>${s}</option>`).join('');
+    }
+    document.getElementById('other-note').style.display = 'none';
+
+    // 線上會面只限一般保險
+    const onlineOpt = document.getElementById('onlineOption');
+    const methodNote = document.getElementById('method-note');
+    const methodSelect = document.getElementById('f-method');
+    if (mainVal === 'general' || mainVal === 'commercial') {
+      onlineOpt.disabled = false;
+      methodNote.style.display = 'none';
+    } else {
+      onlineOpt.disabled = true;
+      if (methodSelect.value === '線上') {
+        methodSelect.value = '';
+        methodNote.style.display = 'block';
+      }
+    }
+  }
+
+  function checkOtherOption() {
+    const val = document.getElementById('f-service').value;
+    const noteEl = document.getElementById('other-note');
+    noteEl.style.display = (val === '其他') ? 'block' : 'none';
   }
 
   // QR Code Modal
@@ -1476,6 +1633,64 @@
     document.getElementById(id).classList.remove('open');
   }
 
+  // Time slot selection
+  function selectSlot(btn) {
+    document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    document.getElementById('f-time').value = btn.textContent.trim();
+    document.getElementById('time-error').style.display = 'none';
+  }
+
+  // Form submit handler — validate time slot, then let Netlify handle the POST
+  function handleSubmit(e) {
+    const time = document.getElementById('f-time').value;
+    if (!time) {
+      e.preventDefault();
+      document.getElementById('time-error').style.display = 'block';
+      document.getElementById('time-error').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    // Show loading state
+    const btn = document.querySelector('.form-submit');
+    btn.textContent = '提交中…';
+    btn.disabled = true;
+
+    // Netlify 會接手 POST，頁面會跳轉到 /thank-you 或預設感謝頁
+    // 如果想留在同一頁顯示成功畫面，改用 fetch 提交：
+    e.preventDefault();
+
+    const form = document.getElementById('bookingForm');
+    const formData = new FormData(form);
+
+    fetch('/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(formData).toString()
+    })
+    .then(() => {
+      const name      = document.getElementById('f-name').value;
+      const mainLabel = document.getElementById('f-service-main-hidden').value;
+      const service   = document.getElementById('f-service').value;
+      const method    = document.getElementById('f-method').value;
+      const date      = dateInput.value;
+
+      form.style.display = 'none';
+      const s = document.getElementById('successMsg');
+      s.style.display = 'block';
+      document.getElementById('success-detail').innerHTML =
+        `<strong>${name}</strong>，多謝你的預約！<br><br>` +
+        `<span style="color:var(--muted)">服務：${mainLabel} － ${service}<br>` +
+        `會面方式：${method}<br>` +
+        `日期：${date} ${time}</span><br><br>` +
+        `Albert 會於一個工作天內透過 WhatsApp 與你確認。`;
+    })
+    .catch(() => {
+      btn.textContent = '確認預約 →';
+      btn.disabled = false;
+      alert('提交出現問題，請直接 WhatsApp：853 6698 3540');
+    });
+  }
 
   // Smooth scroll
   document.querySelectorAll('a[href^="#"]').forEach(a => {
