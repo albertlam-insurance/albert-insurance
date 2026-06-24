@@ -1018,17 +1018,99 @@
     </div>
 
     <div>
-      <div class="gform-card">
-        <div class="gform-card-title">免費預約保單檢視</div>
-        <p class="gform-card-desc">撳下方按鈕，填寫簡單表格（姓名、聯絡方式、想了解嘅服務、偏好時間），Albert 會喺一個工作天內透過 WhatsApp 與你確認。</p>
-        <ul class="gform-card-list">
-          <li>📋 姓名 / 電話或微信</li>
-          <li>🛡️ 服務類別（一般／商業／人壽保險／保單檢視）</li>
-          <li>📅 偏好日期及時間</li>
-          <li>📍 會面方式（面對面或線上）</li>
-        </ul>
-        <a class="gform-cta-btn" href="https://forms.gle/2p8YLbLSk9BdAghg8" target="_blank" rel="noopener">立即填寫預約表 →</a>
-        <div class="gform-card-note">WhatsApp：853 6698 3540　|　WeChat：albertlam25</div>
+      <!-- Splitforms: 提交去 https://splitforms.com/api/submit，用 access_key 識別表單 -->
+      <form
+        class="booking-form"
+        id="bookingForm"
+        method="POST"
+        action="https://splitforms.com/api/submit"
+        onsubmit="handleSubmit(event)"
+      >
+        <input type="hidden" name="access_key" value="fa89f0167cad4b1399c056ddd02b49a0">
+        <input type="hidden" name="subject" value="新預約：保單檢視">
+
+        <div class="form-title">填寫預約資料</div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>姓名 *</label>
+            <input type="text" name="姓名" id="f-name" placeholder="你的名字" required>
+          </div>
+          <div class="form-group">
+            <label>電話 / 微信號 *</label>
+            <input type="text" name="電話或微信" id="f-phone" placeholder="電話號碼或微信號" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>服務主要類別 *</label>
+          <select id="f-service-main" required onchange="updateServiceSub()">
+            <option value="">請先選擇主要類別</option>
+            <option value="general">一般保險</option>
+            <option value="commercial">商業保險</option>
+            <option value="life">人壽保險</option>
+            <option value="review">保單檢視</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="serviceSubWrap" style="display:none">
+          <label>服務細項 *</label>
+          <select name="服務類別" id="f-service" required onchange="checkOtherOption()">
+            <option value="">請選擇細項</option>
+          </select>
+          <div id="other-note" style="font-size:.72rem;color:var(--accent);margin-top:.4rem;display:none">💡 已選擇「其他」，請喺下方備註欄填寫具體需求</div>
+        </div>
+        <input type="hidden" name="服務主要類別" id="f-service-main-hidden">
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>偏好日期 *</label>
+            <input type="date" name="偏好日期" id="f-date" required>
+          </div>
+          <div class="form-group">
+            <label>偏好時間 *</label>
+            <div class="slot-grid">
+              <button type="button" class="slot-btn" onclick="selectSlot(this)">10:00</button>
+              <button type="button" class="slot-btn" onclick="selectSlot(this)">11:00</button>
+              <button type="button" class="slot-btn" onclick="selectSlot(this)">12:00</button>
+              <button type="button" class="slot-btn" onclick="selectSlot(this)">14:00</button>
+              <button type="button" class="slot-btn" onclick="selectSlot(this)">15:00</button>
+              <button type="button" class="slot-btn" onclick="selectSlot(this)">16:00</button>
+              <button type="button" class="slot-btn" onclick="selectSlot(this)">17:00</button>
+              <button type="button" class="slot-btn" onclick="selectSlot(this)">19:00</button>
+              <button type="button" class="slot-btn" onclick="selectSlot(this)">20:00</button>
+            </div>
+            <input type="hidden" name="偏好時間" id="f-time">
+            <div id="time-error" style="color:#e55;font-size:.75rem;margin-top:.4rem;display:none">請選擇時間</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>會面方式 *</label>
+          <select name="會面方式" id="f-method" required>
+            <option value="">請選擇會面方式</option>
+            <option value="面對面（澳門）">📍 面對面（澳門）</option>
+            <option value="線上" id="onlineOption" disabled>💻 線上（只限一般保險／商業保險）</option>
+          </select>
+          <div id="method-note" style="font-size:.72rem;color:var(--muted);margin-top:.4rem;display:none">💡 線上會面只適用於一般保險及商業保險類別</div>
+        </div>
+
+        <div class="form-group">
+          <label>備註（可選）</label>
+          <textarea name="備註" id="f-note" placeholder="例如：現有幾份保單想檢視、有特定保障需求等…"></textarea>
+        </div>
+
+        <button type="submit" class="form-submit">確認預約 →</button>
+        <div class="form-note">以上資料只作預約用途，絕不外洩。AMCM持牌保險顧問。</div>
+      </form>
+
+      <!-- 成功畫面（JS切換顯示） -->
+      <div class="success-msg" id="successMsg">
+        <div class="success-icon">✅</div>
+        <h3>預約成功！</h3>
+        <p id="success-detail">Albert 會於一個工作天內透過 WhatsApp 與你確認詳情。</p>
+        <br>
+        <p style="color:var(--accent);font-size:.85rem">WhatsApp：853 6698 3540　|　WeChat：albertlam25</p>
       </div>
     </div>
   </div>
@@ -1454,6 +1536,126 @@
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
     event.target.classList.add('active');
     document.getElementById('tab-' + type).classList.add('active');
+  }
+
+  // Min date = today
+  const dateInputBooking = document.getElementById('f-date');
+  if (dateInputBooking) dateInputBooking.setAttribute('min', new Date().toISOString().split('T')[0]);
+
+  // ── 服務類別二段式篩選 ──
+  const SERVICE_OPTIONS = {
+    general: [
+      '第三者責任保險（車保）',
+      '中國交強險 + 商業險（北上）',
+      '綜合家居保險',
+      '全年旅遊計劃',
+      '僱員補償保險（勞工保險）',
+      '僱員補償保險（勞工保險＋家傭醫療附加保障）',
+      '其他'
+    ],
+    commercial: [
+      '僱員補償保險（勞工保險）',
+      '公眾責任險（餐廳 / 商戶）',
+      '商業財產綜合保險',
+      '招牌及廣告牌保險',
+      '其他'
+    ],
+    life: [
+      '大額醫療保險',
+      '危疾保險',
+      '人壽保險',
+      '儲蓄保險計劃',
+      '派息基金計劃',
+      '其他'
+    ],
+    review: [
+      '免費保單檢視（已有保單）',
+      '唔清楚，想傾下先',
+      '其他'
+    ]
+  };
+  const SERVICE_MAIN_LABEL = {
+    general: '一般保險', commercial: '商業保險', life: '人壽保險', review: '保單檢視'
+  };
+
+  function updateServiceSub() {
+    const mainVal = document.getElementById('f-service-main').value;
+    const subWrap = document.getElementById('serviceSubWrap');
+    const subSelect = document.getElementById('f-service');
+    document.getElementById('f-service-main-hidden').value = SERVICE_MAIN_LABEL[mainVal] || '';
+
+    if (!mainVal) {
+      subWrap.style.display = 'none';
+      subSelect.innerHTML = '<option value="">請選擇細項</option>';
+    } else {
+      subWrap.style.display = 'block';
+      subSelect.innerHTML = '<option value="">請選擇細項</option>' +
+        SERVICE_OPTIONS[mainVal].map(s => `<option>${s}</option>`).join('');
+    }
+    document.getElementById('other-note').style.display = 'none';
+
+    // 線上會面只限一般保險
+    const onlineOpt = document.getElementById('onlineOption');
+    const methodNote = document.getElementById('method-note');
+    const methodSelect = document.getElementById('f-method');
+    if (mainVal === 'general' || mainVal === 'commercial') {
+      onlineOpt.disabled = false;
+      methodNote.style.display = 'none';
+    } else {
+      onlineOpt.disabled = true;
+      if (methodSelect.value === '線上') {
+        methodSelect.value = '';
+        methodNote.style.display = 'block';
+      }
+    }
+  }
+
+  function checkOtherOption() {
+    const val = document.getElementById('f-service').value;
+    const noteEl = document.getElementById('other-note');
+    noteEl.style.display = (val === '其他') ? 'block' : 'none';
+  }
+
+  // Time slot selection
+  function selectSlot(btn) {
+    document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    document.getElementById('f-time').value = btn.textContent.trim();
+    document.getElementById('time-error').style.display = 'none';
+  }
+
+  // Form submit handler — validate time slot, then submit via fetch to Splitforms
+  function handleSubmit(e) {
+    e.preventDefault();
+    const time = document.getElementById('f-time').value;
+    if (!time) {
+      document.getElementById('time-error').style.display = 'block';
+      document.getElementById('time-error').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    const btn = document.querySelector('.form-submit');
+    btn.textContent = '提交中…';
+    btn.disabled = true;
+
+    const form = document.getElementById('bookingForm');
+    const formData = new FormData(form);
+
+    fetch(form.action, {
+      method: 'POST',
+      body: formData,
+      headers: { 'Accept': 'application/json' }
+    })
+      .then(res => res.json())
+      .then(data => {
+        form.style.display = 'none';
+        document.getElementById('successMsg').style.display = 'block';
+      })
+      .catch(() => {
+        btn.textContent = '確認預約 →';
+        btn.disabled = false;
+        alert('提交失敗，請檢查網絡連線後重試，或直接WhatsApp聯絡。');
+      });
   }
 
   // QR Code Modal
