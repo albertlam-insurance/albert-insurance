@@ -297,6 +297,12 @@
   }
   .email-collect-btn:hover { background: #0000c8; transform: translateY(-2px); }
   .email-collect-note { font-size: .72rem; color: #888; }
+  .newsletter-input {
+    display: block; width: 100%; padding: .85rem 1rem; margin-bottom: .9rem;
+    border: 1px solid #ccc; border-radius: 6px; font-size: .9rem;
+    font-family: inherit; color: #1a1a2e; box-sizing: border-box;
+  }
+  .newsletter-input:focus { outline: none; border-color: #00008F; }
 
   /* ── QUIZ ── */
   .quiz-types-grid {
@@ -1514,12 +1520,16 @@
     </div>
     <div class="email-collect-right">
       <div class="email-collect-card">
-        <div class="email-collect-card-title">免費訂閱 · 隨時取消</div>
-        <p class="email-collect-card-desc">填寫你的電郵地址，即時收到第一份免費懶人包！</p>
-        <a class="email-collect-btn" href="https://forms.gle/Rvj9Jtrch35vTvRK8" target="_blank" rel="noopener">
-          立即登記電郵 →
-        </a>
-        <div class="email-collect-note">🔒 資料保密，絕不外洩或轉售</div>
+        <div class="email-collect-card-title" id="newsletterCardTitle">免費訂閱 · 隨時取消</div>
+        <p class="email-collect-card-desc" id="newsletterCardDesc">填寫你的電郵地址，即時收到第一份免費懶人包！</p>
+        <form id="newsletterForm" onsubmit="submitNewsletter(event)">
+          <input type="email" id="nl-email" class="newsletter-input" placeholder="輸入你的電郵地址" required>
+          <button type="submit" class="email-collect-btn" style="width:100%; border:none; cursor:pointer;">
+            立即登記電郵 →
+          </button>
+          <div id="newsletterError" style="color:#c0392b; font-size:.75rem; margin-top:.6rem; display:none;">提交失敗，請檢查網絡後重試。</div>
+        </form>
+        <div class="email-collect-note" id="newsletterNote">🔒 資料保密，絕不外洩或轉售</div>
       </div>
     </div>
   </div>
@@ -1861,6 +1871,38 @@
         btn.textContent = '提交，查看我嘅理財人格 →';
         btn.disabled = false;
         document.getElementById('quizSubmitError').style.display = 'block';
+      });
+  }
+
+  // ── 訂閱電郵（Newsletter） ──
+  function submitNewsletter(e) {
+    e.preventDefault();
+    const btn = document.querySelector('#newsletterForm .email-collect-btn');
+    const emailVal = document.getElementById('nl-email').value;
+    btn.textContent = '提交中…';
+    btn.disabled = true;
+
+    const formData = new FormData();
+    formData.append('access_key', 'fa89f0167cad4b1399c056ddd02b49a0');
+    formData.append('subject', '新電郵訂閱 — 保障資訊及理財懶人包');
+    formData.append('電郵地址', emailVal);
+
+    fetch('https://splitforms.com/api/submit', {
+      method: 'POST',
+      body: formData,
+      headers: { 'Accept': 'application/json' }
+    })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('newsletterForm').style.display = 'none';
+        document.getElementById('newsletterCardTitle').textContent = '✅ 登記成功！';
+        document.getElementById('newsletterCardDesc').textContent = '多謝訂閱，第一份免費懶人包會盡快send到你嘅電郵。';
+        document.getElementById('newsletterNote').style.display = 'none';
+      })
+      .catch(() => {
+        btn.textContent = '立即登記電郵 →';
+        btn.disabled = false;
+        document.getElementById('newsletterError').style.display = 'block';
       });
   }
 
